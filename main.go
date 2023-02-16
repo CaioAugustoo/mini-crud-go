@@ -106,6 +106,24 @@ func GetAllProducts(db *sql.DB) (*[]Product, error) {
 	return &products, nil
 }
 
+func DeleteProductById(db *sql.DB, id string) error {
+	stmt, err := db.Prepare("delete from products where id = ?")
+
+	if err != nil {
+		return err
+	}
+
+	defer stmt.Close()
+
+	_, err = stmt.Exec(id)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func main() {
 	db, err := sql.Open("mysql", "root:root@tcp(localhost:3306)/root")
 
@@ -117,11 +135,26 @@ func main() {
 
 	myProduct := NewProduct("Nike sneaker", 500.00)
 
-	InsertProduct(db, myProduct)
-	UpdateProduct(db, &Product{Id: "3f162eeb-f7d7-4912-952a-b0f00393050d", Name: "Updated nike sneaker", Price: 1299})
+	err = InsertProduct(db, myProduct)
+
+	if err != nil {
+		panic(err)
+	}
+
+	err = UpdateProduct(db, &Product{Id: "f66e6516-ee49-44e9-a0cb-883599d9dd9e", Name: "Updated nike sneaker", Price: 1299})
+
+	if err != nil {
+		panic(err)
+	}
 
 	// p, err := GetProductById(db, "5edd8ed3-0b12-4e1d-abf8-ae37b083a27d")
 	allProducts, err := GetAllProducts(db)
+
+	if err != nil {
+		panic(err)
+	}
+
+	err = DeleteProductById(db, "11ccfeaf-e21f-4a9d-a324-8b6173a6455d")
 
 	if err != nil {
 		panic(err)
